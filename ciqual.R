@@ -95,7 +95,7 @@ fro <- fromage[9:28]
 
 
 round(colMeans(fro),2) #on en déduit que la matrice n'est pas centrée réduite
-X <- scale(fro,center = TRUE, scale=TRUE)*sqrt(89/88) #centrée réduite
+X <- scale(fro,center = TRUE, scale=TRUE)*sqrt(89/88);X #centrée réduite
 S = t(X)%*%X * (1/89)  #matrice de variance/covariance
 R <- t(S)%*%S * (1/89) #matrice de corrélation
 
@@ -108,7 +108,7 @@ barplot(main = "Variance cumulée",
 
 # 4. ACP N diagonalisation de R
 
-ACP=eigen(R) ; ACP
+ACP=eigen(S) ; ACP
 
 # inertie Ig
 round(ACP$values,3) ; sum(ACP$values) ; sum(diag(R)) 
@@ -117,20 +117,77 @@ round(ACP$values,3) ; sum(ACP$values) ; sum(diag(R))
 u=ACP$vectors;u
 
 # composantes principales F : individus
-fr <- data.matrix(fro);fr
-F=fr%*%u ; F
+F=X%*%u ; F
 
 # plan 1-2 des individus
+
 plot(F[,1],F[,2],xlab="Axe 1", ylab="Axe 2")
+F[,1]
+F[,2]
+
+library(ggplot2)
+data <- as.data.frame(F[,1:2]);data
+ggplot(data, aes(x=V1, y=V2)) +
+  geom_point() + # Show dots
+  geom_text(
+    label=rownames(data), 
+    nudge_x = 0.25, nudge_y = 0.25, 
+    check_overlap = T
+  )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
+
+
+data <- as.data.frame(F[,1:2])
+indiv <- ggplot(data, aes(x=V1, y=V2)) +
+  geom_label(
+    label=rownames(data), 
+    nudge_x = 0.25, nudge_y = 0.25, 
+    check_overlap = T
+  )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
 
 
 # G : CP coord des variables
-G<-matrix(0,20,20)
+G<-matrix(0,20,20);G
 G[,1]=sqrt(ACP$values[1])%*%ACP$vectors[,1]
 G[,2]=sqrt(ACP$values[2])%*%ACP$vectors[,2]
+
+install.packages("ggrepel")
+library(ggrepel)
+dataCor=as.data.frame(G[,1:2])
+
+circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){
+  r = diameter / 2
+  tt <- seq(0,2*pi,length.out = npoints)
+  xx <- center[1] + r * cos(tt)
+  yy <- center[2] + r * sin(tt)
+  return(data.frame(x = xx, y = yy))
+}
+dat <- circleFun(c(0,0),2,npoints = 700)
+#geom_path will do open circles, geom_polygon will do filled circles
+
+variable.graphe <- ggplot(dataCor, aes(V1, V2)) +
+  geom_hline(yintercept=0,color="black")+
+  geom_vline(xintercept = 0,color="black")+
+  geom_point(color = "blue", size = 3)+
+  geom_point(aes(x=x, y=y), data=dat,color="black")
+variable.graphe <- variable.graphe + geom_segment(aes(x = 0, y = 0, xend = V1, yend = V2),
+                 arrow = arrow(length = unit(0.5, "cm")))+
+  geom_label_repel(aes(label = rownames(dataCor)),
+                   box.padding   = 0.35, 
+                   point.padding = 0.5,
+                   segment.color = 'blue') +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),legend.position="none",
+        panel.background=element_blank())+
+  expand_limits(x=c(-1,1), y=c(-1, 1))+theme(aspect.ratio=1)
+
+
 round(G,3)
 plot(G)
 #s.corcircle()
+
+
 s.corcircle (G[,1:2])
 
 
@@ -165,3 +222,5 @@ round(inertie$row.rel,2)
 
 #Affichage graphique
 s.label(acp$li,xax=1,yax=2) 
+
+acp$li
