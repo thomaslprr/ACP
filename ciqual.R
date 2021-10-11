@@ -4,6 +4,11 @@ install.packages("ggrepel")
 #installation du package dplyr
 install.packages("dplyr")
 
+#installation du package funModeling
+install.packages("funModeling")
+
+#installation du package naniar
+install.packages("naniar")
 
 #chargement de la librairie de lecture csv
 library(readr)
@@ -70,6 +75,15 @@ sum(is.na(fromages))
 
 #Nombre de données NA par colonne
 colSums(is.na(fromages))
+
+library(funModeling)
+df_status(fromages)
+library(naniar)
+missVar.p1 <- fromages[,1:38]
+missVar.p2 <- fromages[,39:76]
+
+gg_miss_var(missVar.p1,show_pct = TRUE)
+gg_miss_var(missVar.p2,show_pct = TRUE) 
 
 #Nombre de données non renseignées
 length(fromages[fromages=='-']) 
