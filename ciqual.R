@@ -1,52 +1,84 @@
+#installation du package ggrepel
+install.packages("ggrepel")
+
+#installation du package dplyr
+install.packages("dplyr")
+
+
+#chargement de la librairie de lecture csv
 library(readr)
+#import des données
 data_ciqual <- read_delim("Desktop/Master Informatique/Analyse des données/Projet/data_ciqual.csv"
                           ,delim = ";", escape_double = FALSE, locale = locale(encoding = "latin1"),
                           trim_ws = TRUE,show_col_types = FALSE)
 
+#dimension du dataset
 dim(data_ciqual)
-# 3186 76
 
+#nom des colonnes
 names(data_ciqual)
-# voir le noms des colonnes
 
+#compositions des colonnes, on remarque leur format caractère
 str(data_ciqual)
-# voir les compositions des colonnes, on remarque leur format caractère
 
+# rien de vraiment intéressant car les colonnes sont des caractères
 summary(data_ciqual)
-# rien de vraiment intéressant car caractère
-
-#ISOLATION DES DONNEES FROMAGES
 
 
+
+###ISOLATION DES DONNEES FROMAGES###
+
+
+#classes de chaque colonne
 sapply(data_ciqual, class) 
 
+#nombre de lignes sur le fromage
+length(data[data=='fromages et assimilés'])
+
+#isolation des colonnes qui n'ont pas le bon format
 i <- c(10: 76)
+#copie des données originales par sécurité
 data <- data_ciqual
-data[ , i] <- apply(data_ciqual[ , i], 2,            # Specify own function within apply
+#changement du type des colonnes de caractère à numérique 
+# +
+#remplacement des virgules par des points
+data[ , i] <- apply(data_ciqual[ , i], 2, 
                     function(x) as.numeric(sub(",", ".", as.character(x), fixed = TRUE)))
 
-length(data[data=='fromages et assimilés'])
-#135 lignes sur le fromages
-
-install.packages("dplyr")
+#import de la librairie
 library("dplyr")
+#on garde seulement les fromages et assimilés
 fromages <- dplyr::filter(data, grepl('fromages et assimilés', alim_ssgrp_nom_fr))
+
+#on sauvegarde l'individu supplémentaire
+indiv_supp <- fromages[1,]
+
+#suppression du fromage moyen
 fromages <- fromages[-1,]
 fromages 
-summary(fromages) #bcp plus intéressant car on a des vrais données pour chaque colonne
+#sommaire des fromages
+#bcp plus intéressant qu'avant car on a des données numériques pour chaque colonne
+summary(fromages) 
 
-#TRAITEMENT DES DONNEES NA 
 
-sum(is.na(fromages))
+
+
+
+### TRAITEMENT DES DONNEES NA ###
 #Nombre de données NA
+sum(is.na(fromages))
 
-colSums(is.na(fromages))
 #Nombre de données NA par colonne
+colSums(is.na(fromages))
 
-length(fromages[fromages=='-'])
 #Nombre de données non renseignées
+length(fromages[fromages=='-']) 
+#lors de la conversion des colonnes, les "-" ont été remplacé par des NA ce qui explique
+#qu'on obtient 0 
 
-fromage <- fromages[,1:61]
+#Elimination des colonnes "inutiles"
+fromages <- fromages[,1:61]
+indiv_supp <- indiv_supp[,1:61]
 drops <- c("Sélénium (µg/100 g)","Potassium (mg/100 g)","Phosphore (mg/100 g)",
            "Manganèse (mg/100 g)","Magnésium (mg/100 g)","Iode (µg/100 g)","Fer (mg/100 g)",
            "Cuivre (mg/100 g)","Chlorure (mg/100 g)","Cholestérol (mg/100 g)",
@@ -75,123 +107,49 @@ drops <- c("Sélénium (µg/100 g)","Potassium (mg/100 g)","Phosphore (mg/100 g)
            "alim_nom_sci"
            )
 
-fromage <- fromage[ , !(names(fromage) %in% drops)]
+fromages <- fromages[ , !(names(fromages) %in% drops)]
 
-colSums(is.na(fromage))
+indiv_supp <- indiv_supp[ ,!(names(indiv_supp) %in% drops)]
 
-fromage <- fromage[!is.na(fromage$`Energie, Règlement UE N° 1169/2011 (kJ/100 g)`),]
-fromage <- fromage[!is.na(fromage$`Calcium (mg/100 g)`),]
-fromage <- fromage[!is.na(fromage$`Sodium (mg/100 g)`),]
-fromage <- fromage[!is.na(fromage$`AG saturés (g/100 g)`),]
-fromage <- fromage[!is.na(fromage$`Eau (g/100 g)`),]
-fromage <- fromage[!is.na(fromage$`AG polyinsaturés (g/100 g)`),]
-#Amidon, sucre ????
-fromage <- fromage[!is.na(fromage$`Sucres (g/100 g)`),]
-
-colSums(is.na(fromage))
-
-names <- fromage[,1:8]
-fro <- fromage[9:28]
+#observation des NA par colonne après le premier balayage
+colSums(is.na(fromages))
 
 
-round(colMeans(fro),2) #on en déduit que la matrice n'est pas centrée réduite
-X <- scale(fro,center = TRUE, scale=TRUE)*sqrt(89/88);X #centrée réduite
-S = t(X)%*%X * (1/89)  #matrice de variance/covariance
-R <- t(S)%*%S * (1/89) #matrice de corrélation
+#Elimination des lignes "inutiles"
+fromages <- fromages[!is.na(fromages$`Energie, Règlement UE N° 1169/2011 (kJ/100 g)`),]
+fromages <- fromages[!is.na(fromages$`Calcium (mg/100 g)`),]
+fromages <- fromages[!is.na(fromages$`Sodium (mg/100 g)`),]
+fromages <- fromages[!is.na(fromages$`AG saturés (g/100 g)`),]
+fromages <- fromages[!is.na(fromages$`Eau (g/100 g)`),]
+fromages <- fromages[!is.na(fromages$`AG polyinsaturés (g/100 g)`),]
 
-nb_axe <- round(eigen(S)$values*5,3)
-round(cumsum(eigen(S)$values*5),3);nb_axe  #somme des valeurs des variances cumulées
-#affichage sous forme de graphique
-barplot(main = "Variance cumulée",
-        col="blue", 
-        nb_axe) 
+#Dilemme entre suppression des lignes ou il n'y a pas de sucre renseigné
+#ou des lignes ou il n'y a pas d'amidon renseigné
+#Suppression des lignes où la valeur du sucre n'est pas renseigné
+fromages <- fromages[!is.na(fromages$`Sucres (g/100 g)`),]
 
-# 4. ACP N diagonalisation de R
+#observation des NA par colonne après le balayage par colonne puis par ligne
+colSums(is.na(fromages))
 
-ACP=eigen(S) ; ACP
+#isolation des données nominatives
+names <- fromages[,1:8]
+#isolation des données quantitatives
+fro <- fromages[9:28]
+indiv_supp <- indiv_supp[9:28]
 
-# inertie Ig
-round(ACP$values,3) ; sum(ACP$values) ; sum(diag(R)) 
+### ACP ###
 
-# axes principaux
-u=ACP$vectors;u
-
-# composantes principales F : individus
-F=X%*%u ; F
-
+acp <- acpFun(fro)
 # plan 1-2 des individus
+showIndivFun(acp$indiv,label=FALSE)
+showIndivFun(acp$indiv)
 
-plot(F[,1],F[,2],xlab="Axe 1", ylab="Axe 2")
-F[,1]
-F[,2]
-
-library(ggplot2)
-data <- as.data.frame(F[,1:2]);data
-ggplot(data, aes(x=V1, y=V2)) +
-  geom_point() + # Show dots
-  geom_text(
-    label=rownames(data), 
-    nudge_x = 0.25, nudge_y = 0.25, 
-    check_overlap = T
-  )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
+#affichage du cercle de corrélation
+showCorrelFun(acp$var)
 
 
-data <- as.data.frame(F[,1:2])
-indiv <- ggplot(data, aes(x=V1, y=V2)) +
-  geom_label(
-    label=rownames(data), 
-    nudge_x = 0.25, nudge_y = 0.25, 
-    check_overlap = T
-  )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
 
-
-# G : CP coord des variables
-G<-matrix(0,20,20);G
-G[,1]=sqrt(ACP$values[1])%*%ACP$vectors[,1]
-G[,2]=sqrt(ACP$values[2])%*%ACP$vectors[,2]
-
-install.packages("ggrepel")
-library(ggrepel)
-dataCor=as.data.frame(G[,1:2])
-
-circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){
-  r = diameter / 2
-  tt <- seq(0,2*pi,length.out = npoints)
-  xx <- center[1] + r * cos(tt)
-  yy <- center[2] + r * sin(tt)
-  return(data.frame(x = xx, y = yy))
-}
-dat <- circleFun(c(0,0),2,npoints = 700)
-#geom_path will do open circles, geom_polygon will do filled circles
-
-variable.graphe <- ggplot(dataCor, aes(V1, V2)) +
-  geom_hline(yintercept=0,color="black")+
-  geom_vline(xintercept = 0,color="black")+
-  geom_point(color = "blue", size = 3)+
-  geom_point(aes(x=x, y=y), data=dat,color="black")
-variable.graphe <- variable.graphe + geom_segment(aes(x = 0, y = 0, xend = V1, yend = V2),
-                 arrow = arrow(length = unit(0.5, "cm")))+
-  geom_label_repel(aes(label = rownames(dataCor)),
-                   box.padding   = 0.35, 
-                   point.padding = 0.5,
-                   segment.color = 'blue') +
-  theme(axis.line=element_blank(),axis.text.x=element_blank(),
-        axis.text.y=element_blank(),axis.ticks=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(),legend.position="none",
-        panel.background=element_blank())+
-  expand_limits(x=c(-1,1), y=c(-1, 1))+theme(aspect.ratio=1)
-
-
-round(G,3)
-plot(G)
-#s.corcircle()
-
-
-s.corcircle (G[,1:2])
-
-
-###version ave ADE4###
+### VERSION AVEC ADE4 ###
 
 library(ade4)
 acp<-dudi.pca(fro,center=TRUE,scale=TRUE,scannf=TRUE)
@@ -211,6 +169,8 @@ round(inertie$col.rel,2)
 s.corcircle(acp$co,xax=1,yax=2)
 
 #Analyse des individus 
+ligsup<-suprow(acp,indiv_supp)
+
 inertie <-inertia.dudi(acp, row.inertia=TRUE)
 round(acp$li,2) 
 
@@ -220,7 +180,24 @@ round(inertie$row.abs,2)
 #Qualité de représentation
 round(inertie$row.rel,2)
 
-#Affichage graphique
+#Affichage graphique sans l'individu supplémentaire
 s.label(acp$li,xax=1,yax=2) 
+#Affichage graphique avec l'individu supplémentaire
+#coordonnées des individus actifs
+cl1<-acp$li[,1]
+cl2<-acp$li[,2]
+#coordonnées des individus supplémentaires
+csup1<-ligsup$lisup[,1]
+csup2<-ligsup$lisup[,2]
+#le graphique "vide"
+plot(cl1,cl2,type="n",main="Les individus",xlim=c(-8,8))
+abline(h=0,v=0)
+#on ajoute les individus actifs
+text(cl1,cl2,row.names(acp$li),)
+#on ajoute les individus supplémentaires
+text(csup1,csup2,row.names(ligsup$lisup),col="red",cex=1.2)
 
-acp$li
+#isolement de l'individu supplémentaire
+plot(cl1,cl2,type="n",main="Les individus",xlim=c(-8,8))
+abline(h=0,v=0)
+text(csup1,csup2,row.names(ligsup$lisup),col="red",cex=1.2)
