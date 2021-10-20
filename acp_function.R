@@ -1,21 +1,31 @@
-showIndivFun <- function(data,x=data[,1],y=data[,2],label=TRUE){
+showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE){
   library(ggplot2)
+  valueToShow <- c(1:dim(data)[1])
+  if(!number){
+    valueToShow <- rownames(data)
+  }
+  base <- ggplot(data, aes(x=data[,xvalue], y=data[,yvalue])) +
+    ggtitle("Représentation des individus")+
+    theme(plot.title = element_text(hjust = 0.5,face="bold"))+
+    labs(y=paste(c("Axe", yvalue), collapse = " "), x =paste(c("Axe", xvalue), collapse = " "))
+  
   if(label){
-    ggplot(data, aes(x=x, y=y)) +
+    base +
       geom_label(
-        label=rownames(data), 
+        label=valueToShow, 
         nudge_x = 0.25, nudge_y = 0.25, 
         check_overlap = T
       )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
   }else{
-    ggplot(data, aes(x=x, y=y)) +
+    base +
       geom_point() + # Show dots
       geom_text(
-        label=rownames(data), 
+        label=valueToShow, 
         nudge_x = 0.25, nudge_y = 0.25, 
         check_overlap = T
       )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
-  }
+    
+     }
 }
 
 circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){
@@ -26,14 +36,22 @@ circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){
   return(data.frame(x = xx, y = yy))
 }
 
-showCorrelFun <- function(data,xvalue=1,yvalue=2,labelname=rownames(data)){
+showCorrelFun <- function(data,xvalue=1,yvalue=2,number=TRUE){
   
   dat <- circleFun(c(0,0),2,npoints = 700)
+  valueToShow <- c(1:dim(data)[1])
+  if(!number){
+    valueToShow <- rownames(data)
+  }
+  
   
   #affichage du cercle de corrélation
   library(ggplot2)
   library(ggrepel)
+  
   variable.graphe <- ggplot(data, aes(data[,xvalue], data[,yvalue])) +
+    ggtitle("Cercle des corrélations des variables")+
+    theme(plot.title = element_text(hjust = 0.5,face="bold"))+
     geom_hline(yintercept=0,color="black")+
     geom_vline(xintercept = 0,color="black")+
     geom_point(color = "blue", size = 3)+
@@ -41,7 +59,7 @@ showCorrelFun <- function(data,xvalue=1,yvalue=2,labelname=rownames(data)){
   
   variable.graphe + geom_segment(aes(x = 0, y = 0, xend = data[,xvalue], yend = data[,yvalue]),
                                  arrow = arrow(length = unit(0.5, "cm")))+
-    geom_label_repel(aes(label = labelname),
+    geom_label_repel(aes(label = valueToShow),
                      box.padding   = 0.35, 
                      point.padding = 0.5,
                      segment.color = 'blue') +
@@ -103,11 +121,27 @@ acpFun <- function(dataVal){
   
   #conversion matrice en dataframe
   dataCor=as.data.frame(G[,1:nb_axis])
+  rownames(dataCor)<- colnames(dataVal)
+  
+  
+  # CP qualité des variables
+  dataCor.cos2 <- as.data.frame((G[,1:nb_axis]^2)*100,row.names = colnames(dataVal))
+
+  # CP contribution des variables
+  dataCor.contr <- dataCor.cos2 * 100
+  sums <- colSums(dataCor.cos2)
+  for(i in 1:nb_axis){
+    dataCor.contr[,i] <- dataCor.contr[,i] / sums[i] 
+  }
+  dataCor.contr <- as.data.frame(dataCor.contr,row.names = colnames(dataVal))
+  
   
   listOfDataframe = list(
     "datas" = dataVal,
     "indiv" = data,
-    "var" = dataCor
+    "var.coord" = dataCor,
+    "var.cos2" = dataCor.cos2,
+    "var.contr" = dataCor.contr
   )
   
   return(listOfDataframe)
