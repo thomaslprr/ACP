@@ -33,6 +33,8 @@ summary(data_ciqual)
 
 ###ISOLATION DES DONNEES FROMAGES###
 
+#copie des données originales par sécurité
+data <- data_ciqual
 
 #classes de chaque colonne
 sapply(data_ciqual, class) 
@@ -42,8 +44,7 @@ length(data[data=='fromages et assimilés'])
 
 #isolation des colonnes qui n'ont pas le bon format
 i <- c(10: 76)
-#copie des données originales par sécurité
-data <- data_ciqual
+
 #changement du type des colonnes de caractère à numérique 
 # +
 #remplacement des virgules par des points
@@ -146,20 +147,25 @@ fromages <- fromages[!is.na(fromages$`Sucres (g/100 g)`),]
 colSums(is.na(fromages))
 
 #isolation des données nominatives
-names <- fromages[,1:8]
+names <- as.data.frame(fromages[,8])
 #isolation des données quantitatives
 fro <- fromages[9:28]
 indiv_supp <- indiv_supp[9:28]
 
+rownames(fro) <- names[,1]
+
 ### ACP ###
 
-acp <- acpFun(fro)
+acpMan <- acpFun(fro)
 # plan 1-2 des individus
-showIndivFun(acp$indiv,label=FALSE)
-showIndivFun(acp$indiv)
+showIndivFun(acpMan$indiv,label=FALSE)
+showIndivFun(acpMan$indiv,label=FALSE,number=FALSE)
+showIndivFun(acpMan$indiv)
+
 
 #affichage du cercle de corrélation
-showCorrelFun(acp$var)
+showCorrelFun(acpMan$var.coord)
+showCorrelFun(acpMan$var.coord,number=FALSE)
 
 
 
