@@ -1,5 +1,4 @@
-showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE,cos2){
-  cos2 <- abs(cos2[,xvalue]+cos2[,yvalue])
+showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE,cos2=NULL){
   library(ggplot2)
   valueToShow <- c(1:dim(data)[1])
   if(!number){
@@ -9,7 +8,13 @@ showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE,cos2){
     ggtitle("Représentation des individus")+
     theme(plot.title = element_text(hjust = 0.5,face="bold"))+
     labs(y=paste(c("Axe", yvalue), collapse = " "), x =paste(c("Axe", xvalue), collapse = " "))
-  
+  if(!is.null(cos2)){
+    cos2 <- abs(cos2[,xvalue]+cos2[,yvalue])
+    gradient<-base+geom_point(aes(color = cos2)) + # Show dots
+      scale_color_gradient(low = "red", high = "green") #Update color gradient
+  }else{
+    gradient<-base+geom_point()
+  }
   if(label){
     base +
       geom_label(
@@ -18,9 +23,7 @@ showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE,cos2){
         check_overlap = T
       )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
   }else{
-    base +
-      geom_point(aes(color = cos2)) + # Show dots
-      scale_color_gradient(low = "red", high = "green")+ #Update color gradient
+      gradient+
       geom_text(
         label=valueToShow, 
         nudge_x = 0.25, nudge_y = 0.25, 
@@ -74,18 +77,16 @@ showCorrelFun <- function(data,xvalue=1,yvalue=2,number=TRUE){
     expand_limits(x=c(-1,1), y=c(-1, 1))+theme(aspect.ratio=1)
 }
 
-acpFun <- function(dataVal){
+acpFun <- function(dataVal,scale=TRUE){
   nblignes <- dim(dataVal)[1]
   nbcols <- dim(dataVal)[2]
  
   #centrée réduite
-  X <- scale(dataVal,center = TRUE, scale=TRUE)*sqrt(nblignes/(nblignes-1)); 
+  X <- scale(dataVal,center = TRUE, scale=scale)*sqrt(nblignes/(nblignes-1)); 
   
   #matrice de variance/covariance
   S = t(X)%*%X * (1/nblignes)
  
-  #matrice de corrélation
-  R <- t(S)%*%S * (1/nblignes) 
   
   var_cum <- round(eigen(S)$values,3)
   #affichage sous forme de graphique
@@ -156,16 +157,22 @@ acpFun <- function(dataVal){
   }
   dataCor.contr <- as.data.frame(dataCor.contr,row.names = colnames(dataVal))
   
-  
-  listOfDataframe = list(
-    "datas" = dataVal,
-    "indiv.coord" = data,
-    "indiv.contr" = indivCont,
-    "indiv.cos2" = indivQual,
-    "var.coord" = dataCor,
-    "var.cos2" = dataCor.cos2,
-    "var.contr" = dataCor.contr
-  )
-  
+  if(!scale){
+    listOfDataframe = list(
+      "datas" = dataVal,
+      "indiv.coord" = data,
+      "var.coord" = dataCor
+    ) 
+  }else{
+    listOfDataframe = list(
+      "datas" = dataVal,
+      "indiv.coord" = data,
+      "indiv.contr" = indivCont,
+      "indiv.cos2" = indivQual,
+      "var.coord" = dataCor,
+      "var.cos2" = dataCor.cos2,
+      "var.contr" = dataCor.contr
+    )
+  }
   return(listOfDataframe)
 }
