@@ -150,12 +150,11 @@ acpFun <- function(dataVal,scale=TRUE){
   dataCor.cos2 <- as.data.frame((G[,1:nb_axis]^2)*100*sign(G[,1:nb_axis]),row.names = colnames(dataVal))
 
   # CP contribution des variables
-  dataCor.contr <- dataCor.cos2 * 100
-  sums <- colSums(dataCor.cos2)
+  dataCor.contr <- G[,1:nb_axis]^2
   for(i in 1:nb_axis){
-    dataCor.contr[,i] <- dataCor.contr[,i] / sums[i] 
+    dataCor.contr[,i] <- dataCor.contr[,i] / ACP$values[i] 
   }
-  dataCor.contr <- as.data.frame(dataCor.contr,row.names = colnames(dataVal))
+  dataCor.contr <- as.data.frame(abs(dataCor.contr*100),row.names = colnames(dataVal))
   
   if(!scale){
     listOfDataframe = list(
