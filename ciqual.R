@@ -158,16 +158,20 @@ rownames(fro) <- names[,1]
 
 acpMan <- acpFun(fro)
 # plan 1-2 des individus
-showIndivFun(acpMan$indiv,label=FALSE)
-showIndivFun(acpMan$indiv,label=FALSE,number=FALSE)
-showIndivFun(acpMan$indiv)
+showIndivFun(acpMan$indiv.coord,label=FALSE)
+showIndivFun(acpMan$indiv.coord,label=FALSE,number=FALSE)
+showIndivFun(acpMan$indiv.coord)
 
 
 #affichage du cercle de corrélation
 showCorrelFun(acpMan$var.coord)
 showCorrelFun(acpMan$var.coord,number=FALSE)
 
+round(acpMan$indiv.contr,2)
+round(acpMan$indiv.cos2,2)
 
+round(acpMan$var.contr,2)
+round(acpMan$var.cos2,2)
 
 ### VERSION AVEC ADE4 ###
 
