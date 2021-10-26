@@ -158,6 +158,9 @@ rownames(fro) <- names[,1]
 
 acpMan <- acpFun(fro)
 
+#Afficher les vecteurs propres, variances et variances cumulées
+show(acpMan$vpi)
+
 #Représentation des individus
 showIndivFun(acpMan$indiv.coord,label=FALSE,cos2=acpMan$indiv.cos2)
 showIndivFun(acpMan$indiv.coord,label=FALSE)
@@ -180,6 +183,7 @@ round(acpMan$indiv.cos2,2)
 
 #Possibilité d'effectuer une ACP non normée
 acpMan <- acpFun(fro,scale=FALSE)
+
 
 
 ### VERSION AVEC ADE4 ###
