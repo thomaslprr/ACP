@@ -1,4 +1,5 @@
-showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE){
+showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE,cos2){
+  cos2 <- abs(cos2[,xvalue]+cos2[,yvalue])
   library(ggplot2)
   valueToShow <- c(1:dim(data)[1])
   if(!number){
@@ -18,7 +19,8 @@ showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE){
       )+ geom_hline(yintercept=0,color="black")+ geom_vline(xintercept = 0,color="black")
   }else{
     base +
-      geom_point() + # Show dots
+      geom_point(aes(color = cos2)) + # Show dots
+      scale_color_gradient(low = "red", high = "green")+ #Update color gradient
       geom_text(
         label=valueToShow, 
         nudge_x = 0.25, nudge_y = 0.25, 
