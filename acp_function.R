@@ -28,6 +28,7 @@ showIndivFun <- function(data,xvalue=1,yvalue=2,label=TRUE,number=TRUE){
      }
 }
 
+#Fonction trouvée sur internet
 circleFun <- function(center = c(0,0),diameter = 1, npoints = 100){
   r = diameter / 2
   tt <- seq(0,2*pi,length.out = npoints)
