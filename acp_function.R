@@ -88,11 +88,11 @@ acpFun <- function(dataVal,scale=TRUE){
   S = t(X)%*%X * (1/nblignes)
  
   
-  var_cum <- round(eigen(S)$values,3)
+  vari <- round(eigen(S)$values,3)
   #affichage sous forme de graphique
-  barplot(main = "Variance cumulée",
+  barplot(main = "Variance",
           col="blue", 
-          var_cum) 
+          vari) 
   
   nb_axis <- readline(prompt="Combien d'axe ?")
   # convert character into integer
@@ -100,13 +100,13 @@ acpFun <- function(dataVal,scale=TRUE){
 
   total <- sum(eigen(S)$values)
   #somme des valeurs des variances cumulées
-  round(cumsum(eigen(S)$values*(100/total)),3)  
+  varCum <- c(round(cumsum(eigen(S)$values*(100/total)),3))  
   
   # 4. ACP Normée diagonalisation de S
   ACP=eigen(S) 
   
   # Inertie Ig
-  round(ACP$values,3) 
+  inertie <- c(round(ACP$values,3)) 
   
   # axes principaux
   u=ACP$vectors
@@ -156,11 +156,17 @@ acpFun <- function(dataVal,scale=TRUE){
   }
   dataCor.contr <- as.data.frame(abs(dataCor.contr*100),row.names = colnames(dataVal))
   
+  #Création de la matrice contenant l'inertie, la variance et la variance cumulée
+  vpi <- matrix(c(inertie,vari,varCum),ncol = 3)
+  colnames(vpi) <- c("Val. propre", "Variance (%)", "Variance cumul (%)")
+  vpi <- as.data.frame(vpi)
+  
   if(!scale){
     listOfDataframe = list(
       "datas" = dataVal,
       "indiv.coord" = data,
-      "var.coord" = dataCor
+      "var.coord" = dataCor,
+      "vpi" = vpi
     ) 
   }else{
     listOfDataframe = list(
@@ -170,7 +176,8 @@ acpFun <- function(dataVal,scale=TRUE){
       "indiv.cos2" = indivQual,
       "var.coord" = dataCor,
       "var.cos2" = dataCor.cos2,
-      "var.contr" = dataCor.contr
+      "var.contr" = dataCor.contr,
+      "vpi" = vpi
     )
   }
   return(listOfDataframe)
