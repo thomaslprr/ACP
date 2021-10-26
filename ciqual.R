@@ -193,7 +193,7 @@ round(cumsum(acp$eig*5),2)
 inertie <-inertia.dudi(acp, col.inertia=TRUE) 
 round(acp$co,2)
 
-#contribution axe 1 et axe 2 
+#contribution variable
 round(inertie$col.abs,2)
 
 #qualité de représentation des variables
