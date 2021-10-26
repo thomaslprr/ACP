@@ -158,7 +158,7 @@ rownames(fro) <- names[,1]
 
 acpMan <- acpFun(fro)
 # plan 1-2 des individus
-showIndivFun(acpMan$indiv.coord,label=FALSE)
+showIndivFun(acpMan$indiv.coord,label=FALSE,cos2=acpMan$indiv.cos2)
 showIndivFun(acpMan$indiv.coord,label=FALSE,number=FALSE)
 showIndivFun(acpMan$indiv.coord)
 
@@ -167,11 +167,18 @@ showIndivFun(acpMan$indiv.coord)
 showCorrelFun(acpMan$var.coord)
 showCorrelFun(acpMan$var.coord,number=FALSE)
 
+#Contribution des variables
+round(acpMan$var.contr,2)
+#Qualité des variables
+round(acpMan$var.cos2,2)
+
+#Contribution des individus
 round(acpMan$indiv.contr,2)
+#Qualité des individus
 round(acpMan$indiv.cos2,2)
 
-round(acpMan$var.contr,2)
-round(acpMan$var.cos2,2)
+
+
 
 ### VERSION AVEC ADE4 ###
 
@@ -190,6 +197,7 @@ round(inertie$col.abs,2)
 #qualité de représentation des variables
 round(inertie$col.rel,2) 
 
+#affichage du cercle des corrélations
 s.corcircle(acp$co,xax=1,yax=2)
 
 #Analyse des individus 
