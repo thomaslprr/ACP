@@ -157,11 +157,12 @@ rownames(fro) <- names[,1]
 ### ACP ###
 
 acpMan <- acpFun(fro)
-# plan 1-2 des individus
-showIndivFun(acpMan$indiv.coord,label=FALSE,cos2=acpMan$indiv.cos2)
-showIndivFun(acpMan$indiv.coord,label=FALSE,number=FALSE)
-showIndivFun(acpMan$indiv.coord)
 
+#Représentation des individus
+showIndivFun(acpMan$indiv.coord,label=FALSE,cos2=acpMan$indiv.cos2)
+showIndivFun(acpMan$indiv.coord,label=FALSE)
+showIndivFun(acpMan$indiv.coord,label=FALSE,number=FALSE,cos2=acpMan$indiv.cos2)
+showIndivFun(acpMan$indiv.coord,cos2=acpMan$indiv.cos2)
 
 #affichage du cercle de corrélation
 showCorrelFun(acpMan$var.coord)
@@ -177,13 +178,14 @@ round(acpMan$indiv.contr,2)
 #Qualité des individus
 round(acpMan$indiv.cos2,2)
 
-
+#Possibilité d'effectuer une ACP non normée
+acpMan <- acpFun(fro,scale=FALSE)
 
 
 ### VERSION AVEC ADE4 ###
 
 library(ade4)
-acp<-dudi.pca(fro,center=TRUE,scale=TRUE,scannf=TRUE)
+acp<-dudi.pca(fro,center=TRUE,scale=FALSE,scannf=TRUE)
 round(acp$eig,2)
 round(cumsum(acp$eig*5),2)
 
