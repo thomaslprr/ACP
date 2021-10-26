@@ -113,6 +113,24 @@ acpFun <- function(dataVal){
   
   data <- as.data.frame(F[,1:nb_axis])
   
+  #Contributions des individus 
+  indivCont <- F[,1:nb_axis]
+  score <- indivCont^2 
+  for(i in 1:nb_axis){
+   indivCont[,i] <- score[,i]/(nblignes*ACP$values[i])
+  }
+  indivCont<- as.data.frame(indivCont*100)
+  
+  #Qualité des individus 
+  indivQual <- F[,1:nb_axis]
+  scoreL <- X^2
+  scoreL <- rowSums(scoreL)
+  for(i in 1:nb_axis){
+    for(j in 1:nblignes){
+      indivQual[j,i] <- score[j,i]/scoreL[j]
+    }
+  }
+  indivQual<- as.data.frame(indivQual*100*sign(F[,1:nb_axis]))
   
   # G : CP coord des variables
   G<-matrix(0,nbcols,nbcols)
@@ -126,7 +144,7 @@ acpFun <- function(dataVal){
   
   
   # CP qualité des variables
-  dataCor.cos2 <- as.data.frame((G[,1:nb_axis]^2)*100,row.names = colnames(dataVal))
+  dataCor.cos2 <- as.data.frame((G[,1:nb_axis]^2)*100*sign(G[,1:nb_axis]),row.names = colnames(dataVal))
 
   # CP contribution des variables
   dataCor.contr <- dataCor.cos2 * 100
@@ -139,7 +157,9 @@ acpFun <- function(dataVal){
   
   listOfDataframe = list(
     "datas" = dataVal,
-    "indiv" = data,
+    "indiv.coord" = data,
+    "indiv.contr" = indivCont,
+    "indiv.cos2" = indivQual,
     "var.coord" = dataCor,
     "var.cos2" = dataCor.cos2,
     "var.contr" = dataCor.contr
