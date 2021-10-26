@@ -185,7 +185,7 @@ acpMan <- acpFun(fro,scale=FALSE)
 ### VERSION AVEC ADE4 ###
 
 library(ade4)
-acp<-dudi.pca(fro,center=TRUE,scale=FALSE,scannf=TRUE)
+acp<-dudi.pca(fro,center=TRUE,scale=TRUE,scannf=TRUE)
 round(acp$eig,2)
 round(cumsum(acp$eig*5),2)
 
