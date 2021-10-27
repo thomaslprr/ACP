@@ -2,7 +2,7 @@
 
 ```fromages.csv``` correspond au fichier des données utilisées pour faire fonctionner notre fonction
 
-```data_ciqual.csv``` correspond au fichier des données de base 
+```data_ciqual.csv``` correspond au fichier des données de base (notre projet travaille à partir de ce fichier qui est celui d'origine sur Madoc)
 
 ```acp_function.R``` correspond au fichier avec l'ensemble des fonctions (ACP, affichages)
 
