@@ -10,6 +10,7 @@ install.packages("funModeling")
 #installation du package naniar
 install.packages("naniar")
 
+getFro <- function(){
 #chargement de la librairie de lecture csv
 library(readr)
 #import des données
@@ -153,9 +154,11 @@ fro <- fromages[9:28]
 indiv_supp <- indiv_supp[9:28]
 
 rownames(fro) <- names[,1]
+return(fro)
+}
 
 ### ACP ###
-
+fro <- getFro()
 acpMan <- acpFun(fro)
 
 #Afficher les vecteurs propres, variances et variances cumulées
